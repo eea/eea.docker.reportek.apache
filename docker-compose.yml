@@ -1,5 +1,5 @@
 apache:
-  build: .
+  image: olimpiurob/eea.docker.reportek.apache
   ports:
   - "80:80"
   env_file:
