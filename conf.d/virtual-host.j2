@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+    ServerAdmin {{ APACHE_SERVER_ADMIN }}
+    ServerName {{ APACHE_SERVER_NAME }}
+
+    ProxyTimeout {{ APACHE_HTTP_PROXY_TIMEOUT }}
+
+    RewriteEngine on
+    RewriteRule ^/(.*) http://{{ APACHE_SERVER_NAME }}:80/$1 [P,L]
+
+</VirtualHost>

@@ -1,0 +1,15 @@
+apache:
+  build: .
+  ports:
+  - "80:80"
+  env_file:
+  - apache.env
+  volumes:
+    - conf.d/virtual-host.j2:/tmp/vh.j2:ro
+  links:
+  - webapp
+
+webapp:
+  image: razvan3895/nodeserver
+  ports:
+  - "81:80"
