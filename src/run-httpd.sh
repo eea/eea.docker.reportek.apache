@@ -8,19 +8,27 @@ rm -rf /run/httpd/*
 CONFIG_FILE='/etc/httpd/conf.d/vh-my-app.conf'
 SSL_CERTS_PATH='/etc/pki/tls'
 VH_TPL='/tmp/vh.j2'
+function gen_conf {
+  j2 "$VH_TPL" > $CONFIG_FILE
+}
 BALANCER=''
+if [ ! -z $POUND_PORT ]; then
+  BALANCER=$POUND_PORT
+elif [ ! -z $HAPROXY_PORT ]; then
+  BALANCER=$HAPROXY_PORT
+fi
+export BALANCER
+
+if [ -f "$VH_TPL" ]; then
+  gen_conf
+fi
 
 if [ -f /etc/httpd/conf.d/vh-*.conf ]; then
   echo 'Using mounted config file'
 else
   if [ ! -z $TPL_URL ]; then
     curl -o "$VH_TPL" -u "$TPL_USER:$TPL_PASS" -k "$TPL_URL"
-    if [ ! -z $POUND_PORT ]; then
-    BALANCER=$POUND_PORT
-    elif [ ! -z $HAPROXY_PORT ]; then
-    BALANCER=$HAPROXY_PORT
-    fi
-    export BALANCER
+
     if [ ! -z $APACHE_SSL_CERT_SRC ]; then
       if [ -n $CERT_USER ]; then
           CERT_USER=$TPL_USER
@@ -32,7 +40,7 @@ else
     fi
   fi
   if [ -f "$VH_TPL" ]; then
-    j2 "$VH_TPL" > $CONFIG_FILE
+    gen_conf
   else
     echo '<VirtualHost *:80>' > $CONFIG_FILE
     echo "ServerAdmin $APACHE_SERVER_ADMIN" >> $CONFIG_FILE
