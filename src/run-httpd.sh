@@ -11,13 +11,6 @@ VH_TPL='/tmp/vh.j2'
 function gen_conf {
   j2 "$VH_TPL" > $CONFIG_FILE
 }
-BALANCER=''
-if [ ! -z $POUND_PORT ]; then
-  BALANCER=$POUND_PORT
-elif [ ! -z $HAPROXY_PORT ]; then
-  BALANCER=$HAPROXY_PORT
-fi
-export BALANCER
 
 if [ -f "$VH_TPL" ]; then
   gen_conf
