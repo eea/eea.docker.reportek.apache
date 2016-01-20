@@ -1,11 +1,11 @@
 apache:
-  image: olimpiurob/eea.docker.reportek.apache
+  image: eeacms/reportek-apache
   ports:
   - "80:80"
   env_file:
   - apache.env
   volumes:
-    - conf.d/virtual-host.j2:/tmp/vh.j2:ro
+    - ./conf.d/virtual-host.j2:/tmp/vh.j2:ro
   links:
   - webapp
 

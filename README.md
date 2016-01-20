@@ -1,8 +1,8 @@
-## Reportek Docker image for Apache HTTP server based on CentOS
+## Reportek Docker image for Apache HTTP server based on eeacms/apache:2.4s
 
 ### Supported tags and respective Dockerfile links
 
-  - `:latest` (apache 2.4.6)
+  - `:latest` (apache 2.4.x)
 
 ### Base docker image
 
@@ -28,7 +28,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
     apache:
       image: eeacms/reportek-apache
       volume:
-      - conf.d/virtual-host.conf:/:/etc/httpd/conf.d/vh-my-app.conf
+      - ./conf.d/virtual-host.conf:/:/usr/local/apache2/conf/extra/vh-my-app.conf
       ports:
       - "80:80"
       links:
@@ -43,7 +43,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
     apache:
       image: eeacms/reportek-apache
       volume:
-      - conf.d/virtual-host.conf:/:/tmp/vh.j2
+      - conf.d/virtual-host.j2:/:/tmp/vh.j2
       ports:
       - "80:80"
       links:
@@ -56,7 +56,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
 
 ### Run it with Docker
 
-    $ docker run -it --rm -v conf.d:/etc/httpd/conf.d -p 80:80 eeacms/reportek-apache
+    $ docker run -it --rm -v conf.d/virtual-host.conf:/usr/local/apache2/conf/extra/vh-my-app.conf -p 80:80 eeacms/reportek-apache
 
 
 ### Run it with environment variable set in apache.env
@@ -65,6 +65,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
 * `APACHE_SERVER_NAME` Server name
 * `APACHE_HTTP_PROXY_TIMEOUT` Proxy timeout for http
 * `BALANCER_NAME` Balancer name e.g. `pound` this is the link name
+* `BALANCER_PORT` Balancer port e.g. `8080`
 * `APACHE_HTTPS_PROXY_TIMEOUT` Proxy timeout for https
 * `APACHE_DATA_HOSTNAME` The hostname
 * `APACHE_DATA_FQDN` The fully qualified domain name
@@ -87,7 +88,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
 Build a `Dockerfile` with something similar:
 
     FROM eeacms/reportek-apache
-    ADD your-file.conf /etc/httpd/conf.d/vh-my-app.conf
+    ADD your-file.conf /usr/local/apache2/conf/extra/vh-my-app.conf
 
 
 ## Copyright and license
