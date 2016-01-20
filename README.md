@@ -43,7 +43,7 @@ Here is a basic example of a `docker-compose.yml` file using the `eeacms/reporte
     apache:
       image: eeacms/reportek-apache
       volume:
-      - conf.d/virtual-host.j2:/tmp/vh.j2
+      - ./conf.d/virtual-host.j2:/tmp/vh.j2
       ports:
       - "80:80"
       links:
