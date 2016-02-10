@@ -3,6 +3,7 @@
 # context after restarting the container.  httpd won't start correctly
 # if it thinks it is already running.
 rm -rf /run/httpd/*
+set -x
 CONFIG_FILE='/usr/local/apache2/conf/extra/vh-my-app.conf'
 SSL_CERTS_PATH='/etc/pki/tls'
 
@@ -16,16 +17,6 @@ function gen_conf {
 
 if [ -f "$VH_TPL" ]; then
   gen_conf
-fi
-
-if [ ! -f /usr/local/apache2/conf/server.crt -o \
-     ! -f /usr/local/apache2/conf/server.key ]; then
-  openssl req -x509 -nodes -newkey rsa:2048 \
-          -keyout /usr/local/apache2/conf/server.key \
-          -out /usr/local/apache2/conf/server.crt \
-          -subj "/C=../ST=./L=./O=./OU=./CN=localhost"
-  chown apache:apache /usr/local/apache2/conf/server.crt \
-                      /usr/local/apache2/conf/server.key
 fi
 
 if [ -f /usr/local/apache2/conf/extra/vh-*.conf ]; then
@@ -43,8 +34,6 @@ else
       curl -o "$SSL_CERTS_PATH/private/server.key" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_KEY_SRC
       curl -o "$SSL_CERTS_PATH/certs/server-chain.crt" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_CHAIN_SRC
     fi
-  fi
-  if [ -f "$VH_TPL" ]; then
     gen_conf
   else
     echo '<VirtualHost *:80>' > $CONFIG_FILE
@@ -61,4 +50,14 @@ else
     fi
     echo '</VirtualHost>' >> $CONFIG_FILE
   fi
+fi
+
+if [ ! -f /usr/local/apache2/conf/server.crt -o \
+     ! -f /usr/local/apache2/conf/server.key ]; then
+  openssl req -x509 -nodes -newkey rsa:2048 \
+          -keyout /usr/local/apache2/conf/server.key \
+          -out /usr/local/apache2/conf/server.crt \
+          -subj "/C=../ST=./L=./O=./OU=./CN=localhost"
+  chown apache:apache /usr/local/apache2/conf/server.crt \
+                      /usr/local/apache2/conf/server.key
 fi
