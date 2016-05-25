@@ -60,9 +60,9 @@ else
     gen_conf
   else
     echo '<VirtualHost *:80>' > $CONFIG_FILE
-    echo "ServerAdmin $APACHE_SERVER_ADMIN" >> $CONFIG_FILE
-    echo "ServerName $APACHE_SERVER_NAME" >> $CONFIG_FILE
-    echo "ServerAlias $APACHE_ServerAlias" >> $CONFIG_FILE
+    echo "ServerAdmin ${APACHE_SERVER_ADMIN:-admin@example.com}" >> $CONFIG_FILE
+    echo "ServerName ${APACHE_SERVER_NAME:-foo.example.com}" >> $CONFIG_FILE
+
     echo 'ErrorLog /var/log/apache.log' >> $CONFIG_FILE
     if [ ! -z "$RewriteRule" ]; then
       echo 'RewriteEngine On' >> $CONFIG_FILE
