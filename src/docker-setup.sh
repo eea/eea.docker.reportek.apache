@@ -7,12 +7,12 @@ set -x
 
 CONFIG_FILE='/usr/local/apache2/conf/extra/vh-my-app.conf'
 if [ -z $SSL_CERTS_ROOT ]; then
-  SSL_CERTS_ROOT='/usr/local/apache2/conf'
+  export SSL_CERTS_ROOT='/usr/local/apache2/conf'
 fi
 VH_TPL='/tmp/vh.j2'
 
 function gen_conf {
-  exec env SSL_CERTS_ROOT=$SSL_CERTS_ROOT j2 "$VH_TPL" > $CONFIG_FILE
+  j2 "$VH_TPL" > $CONFIG_FILE
 }
 
 function handle_ssl_certs {
@@ -23,6 +23,14 @@ function handle_ssl_certs {
       echo -e "$SSL_CHAIN" > "$SSL_CERTS_ROOT/server-chain.crt"
       chown apache:apache "$SSL_CERTS_ROOT/server-chain.crt"
     fi
+  elif [ ! -z $APACHE_SSL_CERT_SRC ]; then
+    if [ -n $CERT_USER ]; then
+        CERT_USER=$TPL_USER
+        CERT_PASS=$TPL_PASS
+    fi
+    curl -o "$SSL_CERTS_ROOT/server.crt" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_CERT_SRC
+    curl -o "$SSL_CERTS_ROOT/server.key" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_KEY_SRC
+    curl -o "$SSL_CERTS_ROOT/server-chain.crt" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_CHAIN_SRC
   fi
   if [ ! -f "$SSL_CERTS_ROOT/server.crt" -o \
        ! -f "$SSL_CERTS_ROOT/server.key" ]; then
@@ -47,16 +55,6 @@ else
     gen_conf
   elif [ ! -z $TPL_URL ]; then
     curl -o "$VH_TPL" -u "$TPL_USER:$TPL_PASS" -k "$TPL_URL"
-
-    if [ ! -z $APACHE_SSL_CERT_SRC ]; then
-      if [ -n $CERT_USER ]; then
-          CERT_USER=$TPL_USER
-          CERT_PASS=$TPL_PASS
-      fi
-      curl -o "$SSL_CERTS_ROOT/server.crt" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_CERT_SRC
-      curl -o "$SSL_CERTS_ROOT/server.key" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_KEY_SRC
-      curl -o "$SSL_CERTS_ROOT/server-chain.crt" -u "$CERT_USER:$CERT_PASS" -k $APACHE_SSL_CHAIN_SRC
-    fi
     gen_conf
   else
     echo '<VirtualHost *:80>' > $CONFIG_FILE
