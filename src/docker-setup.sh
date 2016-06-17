@@ -3,7 +3,6 @@
 # context after restarting the container.  httpd won't start correctly
 # if it thinks it is already running.
 rm -rf /run/httpd/*
-set -x
 
 CONFIG_FILE='/usr/local/apache2/conf/extra/vh-my-app.conf'
 if [ -z $SSL_CERTS_ROOT ]; then
